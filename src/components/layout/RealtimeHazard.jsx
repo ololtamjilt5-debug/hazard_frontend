@@ -4,7 +4,7 @@ const RealTimeHazard = () => (
     <>
 {/* Hazard List */}
         <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <HazardListItem 
               key={i}
               userName="С.Лхагвасүрэн" 
