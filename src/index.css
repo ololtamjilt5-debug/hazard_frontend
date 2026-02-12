@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+@theme {
+  --color-ololt-green: #86c340;
+  --color-ololt-dark: #18252c;
+  --color-ololt-darkgreen: #3c6012;
+  --color-ololt-rgbgreen: #78C81E;
+  --color-ololt-orange: #ffa600;
+
+  --font-sans: "Roboto", ui-sans-serif, system-ui;
+  --font-condensed: "Roboto Condensed", sans-serif;
+}
