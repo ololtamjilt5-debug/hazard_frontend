@@ -1,66 +1,103 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Link-ийн оронд useNavigate ашиглана
-import logo from '../assets/logo.png';
-import oLogo from '../assets/Ologo.png';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // axios нэмэх
+import logo from "../assets/logo.png";
+import oLogo from "../assets/Ologo.png";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Шилжилт хийх функц
+  const [userId, setUserId] = useState(""); // email -> userId болгов
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); // Алдааны мэдээлэл харуулах state
+  const [loading, setLoading] = useState(false); // Уншиж байх үед товчлуурыг идэвхгүй болгох
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Нэвтрэх өгөгдөл:", { email, password });
-    
-    // Энд логик шалгаад амжилттай бол шилжүүлнэ
-    if(email && password) {
-       navigate('/UserDashboard');
+    setError("");
+    setLoading(true);
+
+    try {
+      // Backend API-руу хүсэлт явуулах
+      const response = await axios.post("http://localhost:3000/auth/login", {
+        user_id: userId,
+        password: password,
+      });
+
+      console.log("Backend хариу:", response.data);
+
+      // Backend-ээс access_token ирж байна гэж үзвэл localStorage-д хадгална
+      if (response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        // Хэрэв user мэдээлэл ирж байвал хадгалж болно
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        // Амжилттай бол Dashboard руу шилжинэ
+        navigate("/UserDashboard");
+      }
+    } catch (err) {
+      console.error("Нэвтрэх алдаа:", err);
+      // Backend-ээс ирж буй алдааны мэдээллийг харуулах
+      setError(err.response?.data?.message || "ID эсвэл нууц үг буруу байна.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-ololt-rgbgreen to-ololt-dark flex flex-col justify-center px-6 py-12 lg:px-8 font-roboto">
-      
       <div className="sm:mx-auto sm:w-full sm:max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <div className='w-52 mx-auto'>
-          <img src={logo} alt="Logo"/>
+        <div className="w-52 mx-auto">
+          <img src={logo} alt="Logo" />
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="mt-4 text-center text-3xl font-bold leading-9 tracking-tight text-gray-900 font-condensed">
             Нэвтрэх
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-500">
-            Тавтай морилно уу!
-          </p>
+          {/* Алдаа гарвал энд харуулна */}
+          {error && (
+            <div className="mt-2 text-center text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+              {error}
+            </div>
+          )}
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+              <label
+                htmlFor="userId"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
                 ID дугаар
               </label>
               <div className="mt-2">
                 <input
-                  id="email"
-                  type="email"
+                  id="userId"
+                  type="text" // email -> text болгов
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
                   className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
-                  placeholder="123456"
+                  placeholder="12345"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
                   Нууц үг
                 </label>
                 <div className="text-sm">
-                  <a href="#" className="font-semibold text-ololt-rgbgreen hover:text-blue-500 transition-colors">
+                  <a
+                    href="#"
+                    className="font-semibold text-ololt-rgbgreen hover:text-blue-500 transition-colors"
+                  >
                     Нууц үг сэргээх
                   </a>
                 </div>
@@ -81,19 +118,19 @@ const LoginPage = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-xl bg-ololt-green px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 transition-colors uppercase tracking-wider font-condensed"
+                disabled={loading} // Уншиж байх үед товчийг идэвхгүй болгох
+                className={`flex w-full justify-center rounded-xl bg-ololt-green px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 transition-colors uppercase tracking-wider font-condensed ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                Нэвтрэх
+                {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className='absolute bottom-10 left-0 right-0 flex justify-center items-center'>
-        <img src={oLogo} alt="Company Logo" className='w-8'/>
-        <p className='text-gray-50 pl-2 font-light text-[10px] opacity-80 uppercase tracking-tighter'>
+      <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center">
+        <img src={oLogo} alt="Company Logo" className="w-8" />
+        <p className="text-gray-50 pl-2 font-light text-[10px] opacity-80 uppercase tracking-tighter">
           "ОЛОЛТ АМЖИЛТ" ХХК
         </p>
       </div>

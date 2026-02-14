@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const HazardRank = () => {
   // 1. Төлөв (state)-ийг компонент дотор зарлах

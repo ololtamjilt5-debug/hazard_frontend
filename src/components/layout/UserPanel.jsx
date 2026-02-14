@@ -3,17 +3,18 @@ import MyReportHazard from "./MyReportHazard";
 import MyRemoveHazard from "./MyRemoveHazard";
 import MyTaskHazard from "./MyTaskHazard";
 
-const UserPanel = () => (
-  <div className="flex gap-4 items-start"> 
-    
-    {/* Зүүн тал: Профайл хэсэг */}
-    <UserAccount />
-    <div className="space-y-1 flex-1">
-    <MyReportHazard />
+const UserPanel = ({ profile, stats }) => (
+  <div className="flex gap-4 items-start">
+    <UserAccount profile={profile} />
 
-    <MyRemoveHazard />
-    
-     <MyTaskHazard />
+    <div className="space-y-1 flex-1">
+      {/* Нийт тоог 'total' нэрээр, 
+         статусуудыг 'stats' нэрээр дамжуулна 
+      */}
+      <MyReportHazard total={stats?.reportedCount} stats={stats?.byStatus} />
+
+      <MyRemoveHazard count={stats?.fixedCount} />
+      <MyTaskHazard />
     </div>
   </div>
 );
