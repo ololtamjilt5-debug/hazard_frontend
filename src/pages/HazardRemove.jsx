@@ -2,8 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import HazardReportHeader from "../components/layout/HazardReportHeader";
 import ReportLocation from "../components/hazard/ReportLocation";
+import { Loader2 } from "lucide-react"; // Loading spinner-т зориулж нэмэв
 
 const HazardType = [
   "Гал түймэр",
@@ -24,19 +24,20 @@ const HazardLevel = ["Маш их", "Их", "Дунд зэрэг", "Бага", "
 
 const HazardRemove = () => {
   const navigate = useNavigate();
-
-  // Камер болон Галерейд зориулсан Ref-үүд
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+
+  // --- ШИНЭ: Илгээж буй төлөвийг хянах state ---
+  const [isSending, setIsSending] = useState(false);
 
   const [formData, setFormData] = useState({
     location: "",
     type: "Бусад",
-    description: "", // Арилгасан арга хэмжээ
+    description: "",
     impact: "Хүнд",
     level: "Дунд зэрэг",
-    main_type: "Арилгасан", // Тогтмол
-    status: "Арилгасан", // Тогтмол
+    main_type: "Арилгасан",
+    status: "Арилгасан",
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -51,7 +52,6 @@ const HazardRemove = () => {
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-
       Swal.fire({
         icon: "success",
         title: "Зураг сонгогдлоо",
@@ -62,6 +62,9 @@ const HazardRemove = () => {
   };
 
   const handleSend = async () => {
+    // 1. Давхар дарахаас хамгаална
+    if (isSending) return;
+
     if (!formData.location.trim() || !formData.description.trim()) {
       Swal.fire({
         icon: "warning",
@@ -72,7 +75,9 @@ const HazardRemove = () => {
       return;
     }
 
-    // FormData үүсгэх (Файл болон текст өгөгдлийг хамт илгээхэд зориулагдсан)
+    // 2. Илгээж эхэлснийг тэмдэглэнэ
+    setIsSending(true);
+
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
@@ -113,12 +118,13 @@ const HazardRemove = () => {
           err.response?.data?.message || "Сервер рүү илгээхэд алдаа гарлаа.",
         confirmButtonColor: "#EF4444",
       });
+      // 3. Алдаа гарвал дахин илгээх боломжийг нээнэ
+      setIsSending(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-white font-roboto pb-10">
-      {/* 1. Нууц Input-үүд */}
       <input
         type="file"
         ref={cameraInputRef}
@@ -135,7 +141,6 @@ const HazardRemove = () => {
         onChange={handleFileChange}
       />
 
-      {/* Header */}
       <div className="bg-blue-600 text-white p-4 flex items-center justify-center gap-2 shadow-md">
         <span className="text-xl">⚠️</span>
         <h1 className="text-lg font-bold uppercase tracking-wider">
@@ -144,14 +149,12 @@ const HazardRemove = () => {
       </div>
 
       <div className="p-6 space-y-5 max-w-md mx-auto">
-        {/* Мэдээллийн хэсэг */}
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-center">
           <p className="text-blue-700 font-medium">
             Та арилгасан аюулынхаа мэдээллийг энд оруулна уу.
           </p>
         </div>
 
-        {/* Байршил */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Арилгасан байршил:
@@ -162,7 +165,6 @@ const HazardRemove = () => {
           />
         </div>
 
-        {/* Ангилал */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын ангилал:
@@ -180,7 +182,6 @@ const HazardRemove = () => {
           </select>
         </div>
 
-        {/* Арилгасан арга хэмжээ */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Арилгасан арга хэмжээ:
@@ -194,7 +195,6 @@ const HazardRemove = () => {
           />
         </div>
 
-        {/* Нөлөөлөл */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын нөлөөлөл:
@@ -212,7 +212,6 @@ const HazardRemove = () => {
           </select>
         </div>
 
-        {/* Үнэлгээ */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын үнэлгээ:
@@ -230,7 +229,6 @@ const HazardRemove = () => {
           </select>
         </div>
 
-        {/* Зураг урьдчилан харах */}
         {previewUrl && (
           <div className="w-full h-40 bg-gray-50 rounded-md overflow-hidden border border-dashed border-blue-300">
             <img
@@ -241,7 +239,6 @@ const HazardRemove = () => {
           </div>
         )}
 
-        {/* 6. Зураг авах (Цэнхэр дизайнтай) */}
         <div className="grid grid-cols-2 gap-4 pt-2">
           <button
             type="button"
@@ -259,13 +256,24 @@ const HazardRemove = () => {
           </button>
         </div>
 
-        {/* 7. БҮРТГЭХ */}
         <div className="pt-6">
           <button
             onClick={handleSend}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl text-xl font-bold uppercase shadow-lg active:scale-95 transition-transform"
+            disabled={isSending}
+            className={`w-full py-4 rounded-xl text-xl font-bold uppercase shadow-lg transition-all flex items-center justify-center gap-3 ${
+              isSending
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 active:scale-95 hover:bg-blue-700"
+            } text-white`}
           >
-            БҮРТГЭХ
+            {isSending ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                ТҮР ХҮЛЭЭНЭ ҮҮ...
+              </>
+            ) : (
+              "БҮРТГЭХ"
+            )}
           </button>
         </div>
       </div>
