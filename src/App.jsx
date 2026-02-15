@@ -1,44 +1,91 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HazardReport from "./pages/HazardReport";
+import HazardRemove from "./pages/HazardRemove";
 import UserDashboard from "./pages/UserDashboard";
+import HazardDetail from "./pages/HazardDetail";
+import LogoutPage from "./pages/LogoutPage";
+
+// --- ТУСЛАХ КОМПОНЕНТУУД ---
+
+// Зөвхөн нэвтэрсэн хэрэглэгч орох замууд
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    // Хэрэв токен байхгүй бол нэвтрэх хуудас руу шилжүүлнэ
+    return <Navigate to="/LoginPage" replace />;
+  }
+  return children;
+};
+
+// Нэвтэрсэн хэрэглэгч дахин Login руу орохоос сэргийлэх замууд
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    // Хэрэв аль хэдийн нэвтэрсэн бол шууд Dashboard руу шилжүүлнэ
+    return <Navigate to="/UserDashboard" replace />;
+  }
+  return children;
+};
 
 function App() {
-  // Браузерын санах ойноос токен байгаа эсэхийг шалгах
-  const isAuthenticated = !!localStorage.getItem("token");
-
   return (
     <BrowserRouter>
       <Routes>
-        {/* Хэрэв нэвтэрсэн бол шууд Dashboard руу, үгүй бол Login руу */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? <Navigate to="/UserDashboard" /> : <LoginPage />
-          }
-        />
-
+        {/* Нэвтрэх хуудас - Нэвтэрсэн бол харагдахгүй */}
         <Route
           path="/LoginPage"
           element={
-            isAuthenticated ? <Navigate to="/UserDashboard" /> : <LoginPage />
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
           }
         />
 
-        {/* Нэвтрээгүй хэрэглэгч Dashboard руу орж болохгүй байхаар хамгаалж болно */}
+        {/* Хамгаалагдсан замууд - Зөвхөн токентой үед харагдана */}
         <Route
           path="/UserDashboard"
           element={
-            isAuthenticated ? <UserDashboard /> : <Navigate to="/LoginPage" />
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/HazardReport"
           element={
-            isAuthenticated ? <HazardReport /> : <Navigate to="/LoginPage" />
+            <ProtectedRoute>
+              <HazardReport />
+            </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/HazardRemove"
+          element={
+            <ProtectedRoute>
+              <HazardRemove />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/HazardDetail/:id"
+          element={
+            <ProtectedRoute>
+              <HazardDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Үндсэн зам (/) */}
+        <Route path="/" element={<Navigate to="/UserDashboard" replace />} />
+
+        {/* Буруу зам руу орвол */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route path="/Logout" element={<LogoutPage />} />
       </Routes>
     </BrowserRouter>
   );

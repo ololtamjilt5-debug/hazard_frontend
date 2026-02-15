@@ -18,26 +18,24 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Backend API-руу хүсэлт явуулах
-      const response = await axios.post("http://localhost:3000/auth/login", {
-        user_id: userId,
-        password: password,
-      });
+      const response = await axios.post(
+        "https://hazard-hunter-api.onrender.com/auth/login",
+        {
+          user_id: userId,
+          password: password,
+        },
+      );
 
-      console.log("Backend хариу:", response.data);
-
-      // Backend-ээс access_token ирж байна гэж үзвэл localStorage-д хадгална
       if (response.data.access_token) {
+        // 1. Токенийг хадгална
         localStorage.setItem("token", response.data.access_token);
-        // Хэрэв user мэдээлэл ирж байвал хадгалж болно
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        // Амжилттай бол Dashboard руу шилжинэ
+        // 2. Dashboard руу шилжинэ. App.jsx-ийн ProtectedRoute нь
+        // localStorage-ийг шууд унших тул refresh хийх шаардлагагүй.
         navigate("/UserDashboard");
       }
     } catch (err) {
-      console.error("Нэвтрэх алдаа:", err);
-      // Backend-ээс ирж буй алдааны мэдээллийг харуулах
       setError(err.response?.data?.message || "ID эсвэл нууц үг буруу байна.");
     } finally {
       setLoading(false);

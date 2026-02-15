@@ -1,14 +1,39 @@
+import { useNavigate } from "react-router-dom";
 
-const HazardListItem = ({ userName, description }) => (
-  <div className="border border-gray-300 rounded-xl p-3 flex gap-3 items-center bg-white shadow-sm">
-    <div className="flex flex-col items-center min-w-[60px]">
-      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-white text-xl">🦔</div>
-      <p className="text-[10px] text-gray-00 mt-1">{userName}</p>
+const HazardListItem = ({ id, userName, description, userImage }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+      <div className="flex items-center space-x-4">
+        {/* Хэрэглэгчийн зураг */}
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+          <img
+            src={userImage || "https://via.placeholder.com/150"}
+            alt="User"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase">
+            {userName}
+          </p>
+          <p className="text-sm text-gray-700 line-clamp-2 leading-tight w-48">
+            {description}
+          </p>
+        </div>
+      </div>
+
+      {/* Дэлгэрэнгүй товч */}
+      <button
+        onClick={() => navigate(`/HazardDetail/${id}`)}
+        className="text-blue-600 text-xs font-bold underline whitespace-nowrap ml-2"
+      >
+        Дэлгэрэнгүй ...
+      </button>
     </div>
-    <div className="flex-1">
-      <p className="text-sm text-gray-00 font-roboto line-clamp-2">{description}</p>
-      <button className="text-[10px] font-bold float-right mt-1">Дэлгэрэнгүй ...</button>
-    </div>
-  </div>
-);
+  );
+};
+
 export default HazardListItem;

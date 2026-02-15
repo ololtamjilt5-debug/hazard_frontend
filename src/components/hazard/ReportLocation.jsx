@@ -1,23 +1,13 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-const ReportLocation = () => {
-  // Хувьсагчаа дотор нь зарлах
-  const [formData, setFormData] = useState({ location: "" });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  return (
-    <input 
-      name="location"
-      value={formData.location}
-      onChange={handleChange}
-      type="text" 
-      placeholder="Байршил ..." 
-      className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ololt-rgbgreen sm:text-sm"
-    />
-  );
-};
+const ReportLocation = ({ value, onChange }) => (
+  <input
+    type="text"
+    value={value} // Parent-аас ирж буй утга
+    onChange={(e) => onChange(e.target.value)} // Бичих бүрт Parent-руу дамжуулна
+    placeholder="Байршил /цех, хэсэг/"
+    className="w-full bg-[#CCCCCC] p-4 rounded-md text-xl font-condensed placeholder:text-gray-600 focus:outline-none"
+  />
+);
 
 export default ReportLocation;
