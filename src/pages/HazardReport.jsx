@@ -25,10 +25,11 @@ const HazardLevel = ["Маш их", "Их", "Дунд зэрэг", "Бага", "
 
 const HazardReport = () => {
   const navigate = useNavigate();
-
-  // ХОЁР ТУСДАА REF ҮҮСГЭХ
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+
+  // --- ШИНЭ: Илгээж буй төлөвийг хянах state ---
+  const [isSending, setIsSending] = useState(false);
 
   const [formData, setFormData] = useState({
     location: "",
@@ -52,7 +53,6 @@ const HazardReport = () => {
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-
       Swal.fire({
         icon: "success",
         title: "Зураг сонгогдлоо",
@@ -63,6 +63,9 @@ const HazardReport = () => {
   };
 
   const handleSend = async () => {
+    // 1. Хэрэв аль хэдийн илгээж байгаа бол функцийг шууд зогсооно
+    if (isSending) return;
+
     if (!formData.location.trim() || !formData.description.trim()) {
       Swal.fire({
         icon: "warning",
@@ -72,6 +75,9 @@ const HazardReport = () => {
       });
       return;
     }
+
+    // 2. Илгээх төлөвийг TRUE болгож товчийг түгжинэ
+    setIsSending(true);
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => data.append(key, formData[key]));
@@ -105,6 +111,8 @@ const HazardReport = () => {
         text: err.response?.data?.message || "Алдаа гарлаа.",
         confirmButtonColor: "#EF4444",
       });
+      // 3. Алдаа гарвал дахин илгээх боломжтой болгохын тулд FALSE болгоно
+      setIsSending(false);
     }
   };
 
@@ -113,7 +121,7 @@ const HazardReport = () => {
       <HazardReportHeader />
 
       <div className="p-6 space-y-5 max-w-md mx-auto">
-        {/* 1. Камерт зориулсан нууц input */}
+        {/* Нууц input-үүд */}
         <input
           type="file"
           ref={cameraInputRef}
@@ -122,8 +130,6 @@ const HazardReport = () => {
           capture="environment"
           onChange={handleFileChange}
         />
-
-        {/* 2. Галерейд зориулсан нууц input */}
         <input
           type="file"
           ref={galleryInputRef}
@@ -132,7 +138,7 @@ const HazardReport = () => {
           onChange={handleFileChange}
         />
 
-        {/* Байршил */}
+        {/* Формын талбарууд (Location, Type, Description, Impact, Level) */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Байршил:
@@ -143,7 +149,6 @@ const HazardReport = () => {
           />
         </div>
 
-        {/* Аюулын ангилал */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын ангилал:
@@ -161,7 +166,6 @@ const HazardReport = () => {
           </select>
         </div>
 
-        {/* Тайлбар */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Тайлбар:
@@ -175,7 +179,6 @@ const HazardReport = () => {
           />
         </div>
 
-        {/* Нөлөөлөл */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын нөлөөлөл:
@@ -193,7 +196,6 @@ const HazardReport = () => {
           </select>
         </div>
 
-        {/* Үнэлгээ */}
         <div className="space-y-1">
           <label className="text-sm font-bold text-gray-700 ml-1">
             Аюулын үнэлгээ:
@@ -211,7 +213,7 @@ const HazardReport = () => {
           </select>
         </div>
 
-        {/* ЗУРАГ АВАХ ХЭСЭГ (UI БҮРЭН ХАДГАЛАГДСАН) */}
+        {/* Зураг сонгох хэсэг */}
         <div className="space-y-2">
           {previewUrl && (
             <div className="w-full h-40 bg-gray-100 rounded-md overflow-hidden border border-dashed border-gray-400">
@@ -240,11 +242,20 @@ const HazardReport = () => {
           </div>
         </div>
 
+        {/* ИЛГЭЭХ ТОВЧ */}
         <div
-          className="flex item-center justify-center pt-6"
+          className={`flex item-center justify-center pt-6 transition-all ${isSending ? "opacity-50 grayscale cursor-not-allowed" : "cursor-pointer"}`}
           onClick={handleSend}
         >
-          <HazardReportSendButton />
+          {/* loading үед товчлуур дээр "Илгээж байна..." гэж харуулбал илүү гоё */}
+          <div className="relative">
+            <HazardReportSendButton />
+            {isSending && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-xl">
+                <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
