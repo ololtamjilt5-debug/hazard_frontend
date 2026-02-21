@@ -10,6 +10,8 @@ const LoginPage = () => {
   const [error, setError] = useState(""); // Алдааны мэдээлэл харуулах state
   const [loading, setLoading] = useState(false); // Уншиж байх үед товчлуурыг идэвхгүй болгох
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,13 +20,10 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "https://hazard-hunter-api.onrender.com/auth/login",
-        {
-          user_id: userId,
-          password: password,
-        },
-      );
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        user_id: userId,
+        password: password,
+      });
 
       if (response.data.access_token) {
         // 1. Токенийг хадгална
@@ -91,14 +90,6 @@ const LoginPage = () => {
                 >
                   Нууц үг
                 </label>
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-ololt-rgbgreen hover:text-blue-500 transition-colors"
-                  >
-                    Нууц үг сэргээх
-                  </a>
-                </div>
               </div>
               <div className="mt-2">
                 <input

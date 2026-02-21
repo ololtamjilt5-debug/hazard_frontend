@@ -1,8 +1,8 @@
-import defaultProfile from "../../assets/profile.jpg";
-
 const UserAccount = ({ profile }) => {
   // Хэрэв backend-ээс зураг ирээгүй бол assets-дах зургийг ашиглана
-  const userImg = profile?.user_image ? profile.user_image : defaultProfile;
+  const userImg = profile?.user_image
+    ? profile.user_image
+    : "https://picsum.photos/200";
 
   return (
     <div className="flex flex-col w-42 items-center text-center gap-2">

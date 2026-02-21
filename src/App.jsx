@@ -5,6 +5,9 @@ import HazardRemove from "./pages/HazardRemove";
 import UserDashboard from "./pages/UserDashboard";
 import HazardDetail from "./pages/HazardDetail";
 import LogoutPage from "./pages/LogoutPage";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminRoute from "./components/auth/AdminRoute";
+import AdminHazards from "./pages/AdminHazards";
 
 // --- ТУСЛАХ КОМПОНЕНТУУД ---
 
@@ -78,6 +81,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* АДМИН ХЭСЭГ (Зөвхөн Level 3, 4) */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/hazards" element={<AdminHazards />} />
+        </Route>
 
         {/* Үндсэн зам (/) */}
         <Route path="/" element={<Navigate to="/UserDashboard" replace />} />

@@ -23,6 +23,8 @@ const HazardType = [
 const HazardImpact = ["Хүнд", "Эд хөрөнгөд", "Байгаль орчинд"];
 const HazardLevel = ["Маш их", "Их", "Дунд зэрэг", "Бага", "Маш бага"];
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 const HazardReport = () => {
   const navigate = useNavigate();
   const cameraInputRef = useRef(null);
@@ -85,16 +87,12 @@ const HazardReport = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        "https://hazard-hunter-api.onrender.com/hazards/create",
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
+      await axios.post(`${API_BASE_URL}/hazards/create`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       Swal.fire({
         icon: "success",

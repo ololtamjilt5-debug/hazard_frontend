@@ -16,7 +16,7 @@ const HazardDetail = () => {
   const [loading, setLoading] = useState(true);
 
   // Render дээрх таны Backend хаяг
-  const API_BASE_URL = "https://hazard-hunter-api.onrender.com";
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchHazardDetail = async () => {

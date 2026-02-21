@@ -22,6 +22,8 @@ const HazardType = [
 const HazardImpact = ["Хүнд", "Эд хөрөнгөд", "Байгаль орчинд"];
 const HazardLevel = ["Маш их", "Их", "Дунд зэрэг", "Бага", "Маш бага"];
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 const HazardRemove = () => {
   const navigate = useNavigate();
   const cameraInputRef = useRef(null);
@@ -37,7 +39,7 @@ const HazardRemove = () => {
     impact: "Хүнд",
     level: "Дунд зэрэг",
     main_type: "Арилгасан",
-    status: "Арилгасан",
+    status: "Хүлээгдэж буй",
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -90,7 +92,7 @@ const HazardRemove = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://hazard-hunter-api.onrender.com/hazards/create",
+        `${API_BASE_URL}/hazards/create`,
         data,
         {
           headers: {
